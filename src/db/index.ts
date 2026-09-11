@@ -1,7 +1,4 @@
-import type {
-  User, Profile, Task, Habit, HabitLog, Medication, MedicationLog,
-  WaterLog, WeightLog, SleepLog, PeriodLog, JournalEntry, Goal, Appointment, NotificationSetting
-} from '../types';
+import type { User, Task, Habit } from '../types';
 
 const DB_NAME = 'LifeOS_DB';
 const DB_VERSION = 1;
