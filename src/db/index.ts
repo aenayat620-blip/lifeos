@@ -1,38 +1,174 @@
-import type { User } from '../types'
-const DB_NAME='LifeOS_DB'; const DB_VERSION=3; let db:IDBDatabase|null=null
-const stores=['users','profiles','task_templates','task_plans','habits','habit_logs','meal_templates','meal_plans','exercise_templates','workout_plans','medications','medication_logs','water_logs','weight_logs','sleep_logs','period_logs','journal_entries','goals','appointments','notification_settings','sessions']
-export async function initDB(){
- if(db) return db;
- return new Promise<IDBDatabase>((resolve,reject)=>{
-  const r=indexedDB.open(DB_NAME,DB_VERSION);
-  r.onerror=()=>reject(r.error);
-  r.onsuccess=()=>{db=r.result;resolve(db)};
-  r.onupgradeneeded=e=>{
-   const d=(e.target as IDBOpenDBRequest).result;
-   stores.forEach(n=>{
-    if(!d.objectStoreNames.contains(n)){
-     const s=d.createObjectStore(n,{keyPath:'id'});
-     if(!['users','sessions'].includes(n)) s.createIndex('userId','userId',{unique:false});
-     if(n==='users') s.createIndex('email','email',{unique:true});
-     if(['task_plans','meal_plans','workout_plans','habit_logs','medication_logs','water_logs','weight_logs','sleep_logs','period_logs','journal_entries'].includes(n)){
-      s.createIndex('date','date',{unique:false});
-      s.createIndex('userId_date',['userId','date'],{unique:false});
-     }
-    }
-   });
-  };
- });
+import type { User, Task, Habit } from '../types';
+
+const DB_NAME = 'LifeOS_DB';
+const DB_VERSION = 2;
+
+let db: IDBDatabase | null = null;
+
+export async function initDB(): Promise<IDBDatabase> {
+  if (db) return db;
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      db = request.result;
+      resolve(db);
+    };
+    request.onupgradeneeded = (event) => {
+      const database = (event.target as IDBOpenDBRequest).result;
+      const stores = [
+        'users', 'profiles', 'tasks', 'habits', 'habit_logs',
+        'medications', 'medication_logs', 'water_logs', 'weight_logs',
+        'sleep_logs', 'period_logs', 'journal_entries', 'goals',
+        'appointments', 'notification_settings', 'task_templates', 'meal_templates', 'workout_templates', 'sessions'
+      ];
+      stores.forEach((name) => {
+        if (!database.objectStoreNames.contains(name)) {
+          const store = database.createObjectStore(name, { keyPath: 'id' });
+          if (name !== 'users' && name !== 'sessions') {
+            store.createIndex('userId', 'userId', { unique: false });
+          }
+          if (name === 'users') {
+            store.createIndex('email', 'email', { unique: true });
+          }
+          if (['tasks', 'habit_logs', 'medication_logs', 'water_logs', 'weight_logs', 'sleep_logs', 'period_logs', 'journal_entries'].includes(name)) {
+            store.createIndex('date', 'date', { unique: false });
+            store.createIndex('userId_date', ['userId', 'date'], { unique: false });
+          }
+        }
+      });
+    };
+  });
 }
-function store(n:string,m:IDBTransactionMode='readonly'){if(!db) throw new Error('DB not initialized');return db.transaction(n,m).objectStore(n)}
-export async function putItem<T extends {id:string}>(n:string,x:T){await initDB();return new Promise<T>((res,rej)=>{const r=store(n,'readwrite').put(x);r.onsuccess=()=>res(x);r.onerror=()=>rej(r.error)})}
-export async function getItem<T>(n:string,id:string){await initDB();return new Promise<T|undefined>((res,rej)=>{const r=store(n).get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
-export async function deleteItem(n:string,id:string){await initDB();return new Promise<void>((res,rej)=>{const r=store(n,'readwrite').delete(id);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
-export async function getAll<T>(n:string){await initDB();return new Promise<T[]>((res,rej)=>{const r=store(n).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
-export async function getAllByUserId<T>(n:string,userId:string){await initDB();return new Promise<T[]>((res,rej)=>{const r=store(n).index('userId').getAll(userId);r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
-export async function getByUserAndDate<T>(n:string,userId:string,date:string){await initDB();return new Promise<T[]>((res,rej)=>{const r=store(n).index('userId_date').getAll([userId,date]);r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
-export async function findUserByEmail(email:string){await initDB();return new Promise<User|undefined>((res,rej)=>{const r=store('users').index('email').get(email.toLowerCase());r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
-export const simpleHash=(s:string)=>{let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return'h'+Math.abs(h).toString(36)}
-export const generateId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10)
-export async function setSession(userId:string,token:string){return putItem('sessions',{id:'current',userId,token,createdAt:new Date().toISOString()})}
-export async function getSession(){return getItem<{id:string;userId:string;token:string}>('sessions','current')}
-export async function clearSession(){return deleteItem('sessions','current')}
+
+function getStore(storeName: string, mode: IDBTransactionMode = 'readonly') {
+  if (!db) throw new Error('DB not initialized');
+  const tx = db.transaction(storeName, mode);
+  return tx.objectStore(storeName);
+}
+
+// Generic helpers
+export async function putItem<T extends { id: string }>(storeName: string, item: T): Promise<T> {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    const store = getStore(storeName, 'readwrite');
+    const req = store.put(item);
+    req.onsuccess = () => resolve(item);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function getItem<T>(storeName: string, id: string): Promise<T | undefined> {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    const store = getStore(storeName);
+    const req = store.get(id);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function deleteItem(storeName: string, id: string): Promise<void> {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    const store = getStore(storeName, 'readwrite');
+    const req = store.delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function getAllByUserId<T>(storeName: string, userId: string): Promise<T[]> {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    const store = getStore(storeName);
+    const index = store.index('userId');
+    const req = index.getAll(userId);
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function getByUserAndDate<T>(storeName: string, userId: string, date: string): Promise<T[]> {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    const store = getStore(storeName);
+    try {
+      const index = store.index('userId_date');
+      const req = index.getAll([userId, date]);
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    } catch {
+      // fallback
+      getAllByUserId<T>(storeName, userId).then(items => {
+        resolve((items as any[]).filter(i => i.date === date));
+      }).catch(reject);
+    }
+  });
+}
+
+// Auth helpers
+export async function findUserByEmail(email: string): Promise<User | undefined> {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    const store = getStore('users');
+    const index = store.index('email');
+    const req = index.get(email.toLowerCase());
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function createUser(user: User): Promise<User> {
+  return putItem('users', user);
+}
+
+export async function setSession(userId: string, token: string): Promise<void> {
+  await putItem('sessions', { id: 'current', userId, token, createdAt: new Date().toISOString() });
+}
+
+export async function getSession(): Promise<{ userId: string; token: string } | null> {
+  const s = await getItem<{ id: string; userId: string; token: string }>('sessions', 'current');
+  return s ? { userId: s.userId, token: s.token } : null;
+}
+
+export async function clearSession(): Promise<void> {
+  await deleteItem('sessions', 'current');
+}
+
+// Simple hash for demo (NOT secure for production)
+export function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return 'h' + Math.abs(hash).toString(36);
+}
+
+export function generateId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+}
+
+// Sample data generator
+export async function seedSampleData(userId: string): Promise<void> {
+  const today = new Date().toISOString().slice(0, 10);
+  const habits: Habit[] = [
+    { id: generateId(), userId, title: 'نوشیدن آب', frequency: 'daily', reminderTime: '09:00', createdAt: new Date().toISOString(), archived: false },
+    { id: generateId(), userId, title: 'ورزش صبحگاهی', frequency: 'weekdays', weekdays: [0,1,2,3,4], createdAt: new Date().toISOString(), archived: false },
+    { id: generateId(), userId, title: 'مطالعه ۳۰ دقیقه', frequency: 'daily', createdAt: new Date().toISOString(), archived: false },
+    { id: generateId(), userId, title: 'مراقبت پوست', frequency: 'daily', createdAt: new Date().toISOString(), archived: false },
+  ];
+  for (const h of habits) await putItem('habits', h);
+
+  const tasks: Task[] = [
+    { id: generateId(), userId, title: 'بررسی ایمیل‌ها', category: 'کار', date: today, startTime: '09:00', priority: 'medium', completed: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: generateId(), userId, title: 'ورزش هوازی', category: 'ورزش', date: today, startTime: '17:00', priority: 'high', completed: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: generateId(), userId, title: 'شام سالم', category: 'تغذیه', date: today, startTime: '20:00', priority: 'medium', completed: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  ];
+  for (const t of tasks) await putItem('tasks', t);
+
+  // water sample
+  await putItem('water_logs', { id: generateId(), userId, date: today, amount: 500, createdAt: new Date().toISOString() });
+}
