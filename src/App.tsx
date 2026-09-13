@@ -68,7 +68,7 @@ export default function App() {
       case 'today':
         return <Dashboard onNavigate={setPage} />
       case 'calendar':
-        return <PlannerPage />
+        return <PlannerPage onNavigate={setPage} />
       case 'habits':
         return <HabitsPage />
       case 'medications':
