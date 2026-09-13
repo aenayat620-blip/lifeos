@@ -127,7 +127,8 @@ export interface WaterLog {
   id: string;
   userId: string;
   date: string;
-  amount: number; // ml
+  amount: number; // glasses
+  slot?: number;
   createdAt: string;
 }
 
@@ -245,4 +246,6 @@ export type Page =
 
 export interface TaskTemplate { id:string; userId:string; title:string; category:TaskCategory; startTime?:string; endTime?:string; priority:Task['priority']; notes?:string; reminder?:string; createdAt:string; }
 export interface MealTemplate { id:string; userId:string; title:string; category:'صبحانه'|'میان‌وعده'|'ناهار'|'قبل باشگاه'|'شام'; ingredients:string[]; instructions:string; calories?:number; protein?:number; prepMinutes?:number; createdAt:string; }
-export interface WorkoutTemplate { id:string; userId:string; title:string; type:'وزنه'|'پیاده‌روی'|'دویدن'|'دوچرخه'|'کشش'|'یوگا'|'هوازی'|'سایر'; durationMinutes:number; notes?:string; createdAt:string; }
+export interface WorkoutTemplate { id:string; userId:string; title:string; type:'وزنه'|'پیاده‌روی'|'دویدن'|'دوچرخه'|'کشش'|'یوگا'|'هوازی'|'سایر'; durationMinutes:number; caloriesBurned?:number; notes?:string; createdAt:string; }
+export interface DailyMeal { id:string; userId:string; date:string; mealId:string; category:MealTemplate['category']; completed:boolean; createdAt:string; }
+export interface DailyWorkout { id:string; userId:string; date:string; workoutId:string; completed:boolean; caloriesBurned?:number; createdAt:string; }
