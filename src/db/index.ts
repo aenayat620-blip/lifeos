@@ -1,7 +1,7 @@
 import type { User, Task, Habit } from '../types';
 
 const DB_NAME = 'LifeOS_DB';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let db: IDBDatabase | null = null;
 
@@ -20,7 +20,7 @@ export async function initDB(): Promise<IDBDatabase> {
         'users', 'profiles', 'tasks', 'habits', 'habit_logs',
         'medications', 'medication_logs', 'water_logs', 'weight_logs',
         'sleep_logs', 'period_logs', 'journal_entries', 'goals',
-        'appointments', 'notification_settings', 'task_templates', 'meal_templates', 'workout_templates', 'sessions'
+        'appointments', 'notification_settings', 'task_templates', 'meal_templates', 'workout_templates', 'daily_meals', 'daily_workouts', 'sessions'
       ];
       stores.forEach((name) => {
         if (!database.objectStoreNames.contains(name)) {
@@ -31,7 +31,7 @@ export async function initDB(): Promise<IDBDatabase> {
           if (name === 'users') {
             store.createIndex('email', 'email', { unique: true });
           }
-          if (['tasks', 'habit_logs', 'medication_logs', 'water_logs', 'weight_logs', 'sleep_logs', 'period_logs', 'journal_entries'].includes(name)) {
+          if (['tasks', 'habit_logs', 'medication_logs', 'water_logs', 'weight_logs', 'sleep_logs', 'period_logs', 'journal_entries', 'daily_meals', 'daily_workouts'].includes(name)) {
             store.createIndex('date', 'date', { unique: false });
             store.createIndex('userId_date', ['userId', 'date'], { unique: false });
           }
