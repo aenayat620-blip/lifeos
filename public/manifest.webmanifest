@@ -4,8 +4,8 @@
   "description": "سیستم مدیریت شخصی زندگی، سلامت، تغذیه، ورزش و عادات",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f766e",
-  "theme_color": "#0f766e",
+  "background_color": "#fafafa",
+  "theme_color": "#2563eb",
   "orientation": "portrait-primary",
   "lang": "fa",
   "dir": "rtl",
@@ -23,6 +23,10 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["health", "lifestyle", "productivity"],
+  "categories": [
+    "health",
+    "lifestyle",
+    "productivity"
+  ],
   "screenshots": []
 }
