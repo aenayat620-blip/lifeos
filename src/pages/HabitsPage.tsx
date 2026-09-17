@@ -22,7 +22,7 @@ export default function HabitsPage() {
     setLogs(ls)
   }
 
-  useEffect(() => { load() }, [user])
+  useEffect(() => { (async()=>{if(!user)return;const all=await getAllByUserId<Habit>('habits',user.id);const defaults=['مسواک زدن','روتین مراقبت پوست','مصرف به‌موقع دارو/مکمل‌های ثبت‌شده','یادگیری زبان','کنترل قند و چربی افزوده'];for(const title of defaults)if(!all.some(h=>h.title===title))await putItem('habits',{id:generateId(),userId:user.id,title,frequency:'daily',createdAt:new Date().toISOString(),archived:false});load()})() }, [user])
 
   const addHabit = async () => {
     if (!title.trim() || !user) return
