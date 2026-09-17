@@ -1,32 +1,23 @@
-# React + TypeScript + Vite
+# LifeOS — نسخه ارتقایافته
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+نسخه موبایل‌محور PWA برای مدیریت روزانه زندگی، تغذیه، ورزش، آب، عادات، داروها و برنامه‌ریزی.
 
-Currently, two official plugins are available:
+## تغییرات این نسخه
+- ۷ مدل صبحانه، ۱۴ مدل ناهار و ۶ مدل شام با مقدار مواد اولیه.
+- میان‌وعده صبح به‌صورت «یک واحد میوه» با انتخاب میوه.
+- میان‌وعده قبل باشگاه: ۶ بادام خام + قهوه ترک بدون شکر.
+- ۱۴ پک غذایی پیشنهادی کامل + ساخت پک شخصی.
+- امکان انتخاب پک و سپس تغییر هر وعده به‌صورت مستقل.
+- افزودن غذای شخصی با کالری و پروتئین.
+- ۵ فعالیت/تمرین پایه: ۶۰ دقیقه قدرتی، ۱۰ دقیقه تردمیل، ۱۰ دقیقه دوچرخه، ۵ دقیقه الپتیکال و ۳۰ دقیقه پیاده‌روی.
+- پک‌های تمرینی آماده و امکان افزودن تمرین شخصی.
+- نمایش کالری ورزش به‌صورت تخمینی.
+- داشبورد با کالری دریافتی، پروتئین، کالری ورزش، آب، کالری خالص و تکمیل روز.
+- عادات پیش‌فرض: مسواک، مراقبت پوست، مصرف به‌موقع دارو/مکمل ثبت‌شده، زبان و کنترل قند/چربی افزوده.
+- برنامه‌ریز روزانه با فعالیت‌های پیش‌فرض و افزودن کار جدید با دکمه شناور سازگار با safe-area آیفون.
+- راهنمای عمومی مکمل‌ها با تأکید بر اینکه آهن و سایر مکمل‌ها برای همه افراد ضروری نیستند.
+- ظاهر و فاصله‌گذاری موبایل بهبود یافته و کنترل‌های قابل لمس‌تر شده‌اند.
+- اطلاعات اصلی همچنان روی IndexedDB دستگاه نگهداری می‌شود.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## نکته مهم
+اعداد کالری و پروتئین غذاها و کالری ورزش تقریبی‌اند و برای پایش روند روزانه هستند، نه تشخیص یا نسخه پزشکی. نیاز به مکمل، به‌خصوص آهن، باید بر اساس شرایط فردی/آزمایش و نظر پزشک یا داروساز تعیین شود.
